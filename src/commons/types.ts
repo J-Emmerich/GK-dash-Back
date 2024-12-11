@@ -1,5 +1,6 @@
-import { Request } from "express";
-import { HydratedDocument, Types } from "mongoose";
+import { Errback, Request } from "express";
+import { MongoError } from "mongodb";
+import { Error, HydratedDocument, MongooseError, Types } from "mongoose";
 
 export interface IProject {
   _id?: Types.ObjectId;
@@ -50,4 +51,7 @@ export interface IRequest extends Request {
     customerId?: Types.ObjectId;
     invoiceId?: Types.ObjectId;
   };
+}
+
+export interface IErrback extends Errback, Error {
 }

@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken");
 import { createHash, randomBytes } from "crypto";
 import { IUser } from "@commons/types";
 
-const { JWT_SECRET, JWT_EXPIRE } = process.env;
+const { JWT_SECRET, JWT_EXPIRE, BASE_FRONTEND_URL } = process.env;
 
 export const registerUser = async (
   name: string,

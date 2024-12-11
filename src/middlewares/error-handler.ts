@@ -1,7 +1,8 @@
-import { NextFunction, Response } from "express";
-import { Error } from "mongoose";
-import { IRequest } from "@commons/types";
+import { NextFunction, Response, Errback  } from "express";
+import { IErrback, IRequest } from "@commons/types";
 import { ErrorResponse } from "@utilities";
+import { MongoError } from "mongodb";
+import { Error } from "mongoose";
 
 const sendHttpResponse = (err: ErrorResponse, req: IRequest, res: Response) => {
   if (err.statusCode === 500) {
@@ -25,33 +26,34 @@ const sendHttpResponse = (err: ErrorResponse, req: IRequest, res: Response) => {
       error: err.message || "Server Error",
     });
 };
-
+// Get the 4 arguments of Express Error Handling
 // eslint-disable-next-line no-unused-vars
 export const errorHandler = (
-  err: Error,
+  err: Errback,
   req: IRequest,
   res: Response,
   next: NextFunction
 ) => {
-  let error = { ...err };
+let message:string;
+let status:number;
 
-  error.message = `${err.message}`;
-  let errorResponse;
-  if (err.code === 11000) {
-    const message = "Duplicate Field Error";
-    const errorResponse: ErrorResponse = new ErrorResponse(
-      message,
-      400,
-      error.route
-    );
-    sendHttpResponse(errorResponse, req, res);
-  } else if (err.name === "ValidationError") {
-    const message = Object.values(err.errors).map((value) => value.message);
-    errorResponse = new ErrorResponse(message, 400, error.route);
-    sendHttpResponse(errorResponse, req, res);
-  } else {
-    sendHttpResponse(error as ErrorResponse, req, res);
+if (err instanceof MongoError) {
+    if (err.code === 11000) {
+       message = "Duplicate Field Error";
+       status = 401;
   }
+    } 
+  else if (err instanceof Error.ValidationError ) {
+         message = Object.values(err.errors).map((errorObject) => errorObject.message)[1];
+         status = 401;
+         let errorResponse = new ErrorResponse(message, status)
+         sendHttpResponse(errorResponse, req, res);
+        } else {
+          message = "Unknown Error";
+          let errorResponse = new ErrorResponse(message, 500)
+    sendHttpResponse(errorResponse, req, res);
+  }
+
 };
 
 export const logError = (err, req, res, next) => {

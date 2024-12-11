@@ -6,10 +6,8 @@ const mongoose = require("mongoose");
 // This should be a central log system that is not implemented as yet
 // const { logError } = require("../middlewares/error-handler");
 
-const user = process.env.DB_USER;
-const password = process.env.DB_PASSWORD;
-const database = process.env.DB;
-const uri = `mongodb+srv://${user}:${password}@${database}.mbikmto.mongodb.net/?retryWrites=true&w=majority&authSource=admin`;
+const {DB_USER, DB_PASSWORD, DB } = process.env
+const uri = `mongodb+srv://${DB_USER}:${DB_PASSWORD}@cluster0.3dgxs.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 const options = {
   // strictPopulate: false
